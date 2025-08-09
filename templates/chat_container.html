@@ -1,0 +1,61 @@
+
+{% block chatcontainer %}
+{% if nochat %}
+        <div class="chat-container">
+            <div class="no-chat-selected" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; padding: 20px; color: var(--gray-600);">
+                    <div style="font-size: 24px; margin-bottom: 16px;">
+                        <i class="fas fa-comment-dots"></i>
+                    </div>
+                    <h2 style="font-size: 20px; margin-bottom: 8px; font-weight: 600;">Select a chat to start messaging</h2>
+                    <p style="max-width: 300px;">Choose a conversation from your chat list to view messages or start a new one.</p>
+                </div>
+        </div>
+{% else %}
+        <div class="chat-container">
+        <div class="chat-header-bar">
+            <img class="chat-header-avatar" src="{{ current_chat.picture }}" alt="Profile">
+            <div class="chat-header-info">
+                <div class="chat-header-name">{{ current_chat.name }}</div>
+                <div class="chat-header-status">Active now</div>
+            </div>
+            <div class="chat-header-actions">
+                <svg width="24" height="24"><use xlink:href="#call-icon"></use></svg>
+                <svg width="24" height="24"><use xlink:href="#video-icon"></use></svg>
+                <svg width="24" height="24"><use xlink:href="#info-icon"></use></svg>
+            </div>
+        </div>
+
+        <div class="messages-container" id="messages-container">
+            {% for message in current_chat.messages %}
+            <div class="message {% if message.sent %}sent{% else %}received{% endif %}">
+                {{ message.text }}
+                <div class="message-time">{{ message.time }}</div>
+            </div>
+            {% endfor %}
+            <div class="typing-indicator" id="typing-indicator">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        </div>
+
+        <div class="input-container">
+            <div class="input-area">
+                <svg width="24" height="24" class="input-actions"><use xlink:href="#smile-icon"></use></svg>
+                <input type="text" placeholder="Type a message..." id="message-input">
+                <svg width="24" height="24" class="input-actions"><use xlink:href="#attach-icon"></use></svg>
+                <svg width="24" height="24" class="input-actions"><use xlink:href="#gif-icon"></use></svg>
+            </div>
+            <button class="send-button" id="send-button">
+                <i class="fa-solid fa-paper-plane" style=font-size:40px;></i>
+                {#  <svg width="24" height="24"><use xlink:href="#send-icon"></use></svg>  #}
+            </button>
+        </div>
+    </div>
+
+    {% endif %}
+    
+
+
+{% endblock chatcontainer %}
+    

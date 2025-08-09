@@ -1,0 +1,115 @@
+
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Chat</title>
+
+    <link rel="stylesheet" type="text/css" href="{% static 'css/chat.css' %}" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+
+<body>
+
+<div>
+        {% include "chat_list.html" %}
+</div>
+
+{% include "chat_container.html" %}
+
+<script>
+    const roomId = "{{ room_id }}";  // Django থেকে পাঠানো room_id
+    const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+    const chatSocket = new WebSocket(`${wsScheme}://${window.location.host}/ws/chat/${roomId}/`);
+
+    let lastSentMessage = '';
+
+    chatSocket.onopen = () => console.log("WebSocket connected");
+
+    chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        console.log("Got message:", data.message);
+
+        // যদি সার্ভার থেকে নিজের পাঠানো মেসেজ ফিরে আসে, ডুপ্লিকেট এড়াতে কিছু না করবো
+        if(data.message === lastSentMessage) {
+            return;
+        }
+
+        // অন্যদের পাঠানো মেসেজ UI তে যোগ (বাম পাশে)
+        const messagesContainer = document.getElementById('messages-container');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message received';
+        messageDiv.innerHTML = `
+            ${data.message} 
+            <div class="message-time">${new Date().toLocaleTimeString()}</div>
+        `;
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            updateLastMessageInList(data.message, roomId);
+
+    };
+
+    function updateLastMessageInList(message, roomId) {
+        const chatItem = document.querySelector(`.chat-item[data-chat-id="${roomId}"]`);
+        if (chatItem) {
+            const lastMessageElement = chatItem.querySelector(".chat-message");
+            if (lastMessageElement) {
+                lastMessageElement.textContent = message;
+            }
+
+            const timeElement = chatItem.querySelector(".chat-time");
+            if (timeElement) {
+                const now = new Date();
+                timeElement.textContent = now.getHours().toString().padStart(2, '0') + ":" +
+                                        now.getMinutes().toString().padStart(2, '0');
+            }
+        }
+    }
+
+    chatSocket.onclose = () => console.log("WebSocket closed");
+
+    // মেসেজ পাঠানোর ফাংশন
+    function sendMessage() {
+        const input = document.getElementById('message-input');
+        const message = input.value.trim();
+        if (!message) return;
+
+        lastSentMessage = message;  // শেষ পাঠানো মেসেজ মনে রাখি
+
+        chatSocket.send(JSON.stringify({message: message}));
+
+        // UI তে নিজে পাঠানো মেসেজ দেখানো (ডান পাশে)
+        const messagesContainer = document.getElementById('messages-container');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message sent';
+        messageDiv.innerHTML = `
+            ${message} 
+            <div class="message-time">${new Date().toLocaleTimeString()}</div>
+        `;
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        input.value = '';
+    }
+
+    // বাটন ক্লিক এবং এন্টার প্রেসে মেসেজ পাঠানো
+    document.getElementById('send-button').onclick = sendMessage;
+    document.getElementById('message-input').addEventListener('keypress', function(e) {
+        if(e.key === 'Enter') sendMessage();
+    });
+
+
+    document.addEventListener("DOMContentLoaded", function() {
+    var chatMessages = document.getElementById("messages-container");
+    if (chatMessages) {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    });
+</script>
+
+</body>
+</html>

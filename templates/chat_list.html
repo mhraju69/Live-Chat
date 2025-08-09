@@ -1,0 +1,154 @@
+{% load static %}
+<div class="sidebar">
+    <div class="sidebar-header">
+        <div class="search-bar">
+            <form method="POST" action="{% url 'search' %}">
+                {% csrf_token %}
+                <svg width="20" height="20" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%);">
+                    <use xlink:href="#search-icon"></use>
+                </svg>
+                <input 
+                    type="text" 
+                    name="name" 
+                    placeholder="Search Name" 
+                    value="{{ query|default:'' }}" 
+                    style="padding-left: 40px;"
+                >
+            </form>
+        </div>
+    </div>
+
+    {% comment %} <div class="sidebar-tabs">
+        <div class="tab active">All</div>
+        <div class="tab">Unread</div>
+        <div class="tab">Groups</div>
+        <div class="tab">New Chat</div>
+    </div>
+
+    <div class="chat-list" id="chat-list">
+        
+        {% if query %}
+            <h4 style="padding:15px;">Results for: {{query}}</h4>
+        {% endif %}
+            
+        {% for chat in chats %}
+            <a href="{% url 'chat-room' chat.id %}" style="text-decoration:none; color:inherit;">
+                <div class="chat-item {% if chat.id == current_chat.id %}active{% endif %}" data-chat-id="{{ chat.id }}">
+                    <img class="chat-avatar" src="{{ chat.picture }}" alt="{{ chat.name }}">
+                    <div class="chat-info">
+                        <div class="chat-header">
+                            <div class="chat-name">{{ chat.name }}</div>
+                            <div class="chat-time">{{ chat.time }}</div>
+                        </div>
+                        <div class="chat-preview">
+                            <div class="chat-message">{{ chat.last_message }}</div>
+                            {% if chat.unread > 0 %}
+                            <div class="chat-unread">{{ chat.unread }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </a>
+        {% empty %}
+            <p>No chats found.</p>
+        {% endfor %}
+    </div> {% endcomment %}
+
+
+    <div class="sidebar-tabs">
+    <div class="tab active" data-tab="all">All</div>
+    <div class="tab" data-tab="unread">Unread</div>
+    <div class="tab" data-tab="groups">Groups</div>
+    <div class="tab" data-tab="new">New Chat</div>
+    </div>
+
+        <div class="chat-list" id="chat-list">
+            {% if query %}
+                <h4 style="padding:15px;">Results for: {{query}}</h4>
+            {% endif %}
+                
+            <!-- All Chats Tab Content -->
+            <div class="tab-content active" id="all-tab">
+                {% for chat in chats %}
+                {% if search_mode %}
+                <a href="{% url 'create-chat-room' chat.id %}" style="text-decoration:none; color:inherit;">
+                {% else %}
+                    <a href="{% url 'chat-room' chat.id %}" style="text-decoration:none; color:inherit;">
+                        {% endif %}
+                        <div class="chat-item {% if chat.id == current_chat.id %}active{% endif %}" data-chat-id="{{ chat.id }}">
+                            <img class="chat-avatar" src="{{ chat.picture }}" alt="{{ chat.name }}">
+                            <div class="chat-info">
+                                <div class="chat-header">
+                                    <div class="chat-name">{{ chat.name }}</div>
+                                    <div class="chat-time">{{ chat.time }}</div>
+                                </div>
+                                <div class="chat-preview">
+                                    <div class="chat-message">{{ chat.last_message }}</div>
+                                    {% if chat.unread > 0 %}
+                                    <div class="chat-unread">{{ chat.unread }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if not chat.has_room and search_mode%}
+                            <div class="create-chat-container">
+                            <img class="plus-icon" src="{% static 'images/plus.png' %}" alt="">
+                            {% comment %} <p class="create">Create new chat</p> {% endcomment %}
+                        </div>
+                            {% endif %}
+                        </div>
+
+
+                        <!-- From Uiverse.io by vinodjangid07 -->
+                         
+                    </a>
+                {% empty %}
+                    <h4 style="padding:15px;">No chats found.</h4>
+                {% endfor %}
+            </div>
+           
+        </div>
+
+    <div style="display:flex;align-items:center;padding:15px;justify-content: space-between;"> 
+        <div style="display:flex;align-items:center;">
+            {% if user_profile.image %}
+                <img class="chat-avatar" src="{{ user_profile.image.url }}" alt="{{ user_profile.Name }}">
+            {% else %}
+                <i class="fa-solid fa-circle-user" style="font-size:40px;"></i>
+            {% endif %}
+    
+            {% if user_profile.name %}
+                <h2>{{ user_profile.name }}</h2>
+            {% else %}
+                <h2 style="padding-left:15px;">{{ user_profile.user.username }}</h2>
+            {% endif %}
+        </div>
+        <a href="{% url 'logout' %}" class="logout-btn" >
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        </a>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Tab switching functionality
+    const tabs = document.querySelectorAll('.sidebar-tabs .tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            // Remove active class from all tabs and contents
+            tabs.forEach(t => t.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            
+            // Add active class to clicked tab
+            this.classList.add('active');
+            
+            // Show corresponding content
+            const tabId = this.getAttribute('data-tab');
+            document.getElementById(`${tabId}-tab`).classList.add('active');
+        });
+    });
+    
+    
+});
+</script>
