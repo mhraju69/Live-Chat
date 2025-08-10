@@ -31,7 +31,9 @@ urlpatterns = [
     path("chat/", ChatView, name="chat"),
     path("chat/<int:room_id>/", ChatView, name="chat-room"),
     path('chat/create-room/<int:user_id>/', create_chat_room, name='create-chat-room'),
-    path("chat/search/", SearchView, name="search")
+    path("chat/search/", SearchView, name="search"),
+    path('update-profile/', Update_Profile, name='profile_update'),
+
 
 ]
 

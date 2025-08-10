@@ -12,9 +12,8 @@
             color: #050505;
             height: 100vh;
             display: flex;
-        }
-
-        /* Sidebar Styles */
+            position: relative;
+        }         /* Sidebar Styles */
         .sidebar {
             width: 360px;
             height: 100vh;
@@ -170,10 +169,10 @@
 
         .logout-btn{
             outline:none;
-            margin-right:25px;
+            margin-left:25px;
             border: none;
             background:transparent;
-            color:black;
+             color:black;
         }
         .fa-arrow-right-from-bracket {
             font-size: 25px;
@@ -195,7 +194,18 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
+            position: relative;
         }
+        .message-container {
+            position: fixed;
+            top: 20px;          /* distance from top */
+            left: 50%;          /* center horizontally */
+            transform: translateX(-50%);
+            width: 90%;         /* responsive width */
+            max-width: 700px;   /* max width so it’s not too wide */
+            z-index: 1050;      /* above most elements */
+        }
+
 
         .chat-header-bar {
             padding: 12px 16px;

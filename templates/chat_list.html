@@ -108,7 +108,12 @@
            
         </div>
 
-    <div style="display:flex;align-items:center;padding:15px;justify-content: space-between;"> 
+    <div style="display:flex;align-items:center;padding:15px;justify-content: space-between;background-color: #e3e3e33b;box-shadow: 0 -2px 1px #e3e3e388;"> 
+<div type="button" class="pointer" 
+     data-bs-toggle="modal" 
+     data-bs-target="#exampleModalCenter" 
+     style="cursor: pointer;">
+    <!-- Your trigger content, e.g. icon or text -->
         <div style="display:flex;align-items:center;">
             {% if user_profile.image %}
                 <img class="chat-avatar" src="{{ user_profile.image.url }}" alt="{{ user_profile.Name }}">
@@ -122,6 +127,8 @@
                 <h2 style="padding-left:15px;">{{ user_profile.user.username }}</h2>
             {% endif %}
         </div>
+        </div>
+
         <a href="{% url 'logout' %}" class="logout-btn" >
             <i class="fa-solid fa-arrow-right-from-bracket"></i>
         </a>

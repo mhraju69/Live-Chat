@@ -82,58 +82,7 @@ def ChatView(request, room_id=None):
     }
         return render(request, "chat.html", context)
 
-
-# def SearchView(request):
-#     user = request.user
-#     profile = request.user.profile
-
-#     if request.method == "POST":
-#         query = request.POST.get("name", "").strip()
-#         print('search_term----', query)
-
-#         rooms = ChatRoom.objects.filter(members=profile).prefetch_related('members__user')
-
-#         chat_list_data = []
-#         for room in rooms:
-#             last_msg = room.messages.order_by("-timestamp").first()
-            
-#             # Get matching members (case-insensitive)
-#             other_members = room.members.exclude(id=profile.id).filter(
-#                 Q(Name__icontains=query) | 
-#                 Q(user__username__icontains=query)
-#             )
-            
-#             # If searching and no matches, skip this room
-#             if query and not other_members.exists():
-#                 continue
-                
-#             # Get first matching member, or first member if no query
-#             other = other_members.first() if query else room.members.exclude(id=profile.id).first()
-#             other_profile = other if other else profile
-
-#             chat_list_data.append({
-#                 "id": room.id,
-#                 "name": display_name_for(other_profile),
-#                 "last_message": last_msg.content if last_msg else "",
-#                 "time": last_msg.timestamp.strftime("%H:%M") if last_msg else "",
-#                 "unread": 0,
-#                 "picture": picture_url_for(other_profile),
-#             })
-
-#         context = {
-#             "query": query,
-#             "chats": chat_list_data,
-#             "nochat": True,  # Only True if no results
-#             "user_profile": profile,
-#             "search_mode": bool(query),  # Tell template we're searching
-#         }
-#         return render(request, "chat.html", context)
-        
-#     return redirect('/chat/')
-
-
-
-
+@login_required
 def SearchView(request):
     user = request.user
     profile = request.user.profile
@@ -216,8 +165,6 @@ def create_chat_room(request, user_id):
     
     return redirect('chat-room', room_id=new_room.id)
 
-
-
 def display_name_for(p):
     if not p:
         return ""
@@ -242,3 +189,31 @@ def picture_url_for(p):
         except Exception as e:
             print(f'Exception while accessing image url: {e}')
         return default_avatar
+
+from django.contrib import messages
+@login_required
+def Update_Profile(request):
+    if request.method == 'POST':
+        user = request.user
+        name = request.POST.get('name')
+        age = request.POST.get('age')
+        image = request.FILES.get('image')
+        print(user,name,age,image)
+        try:
+            profile = Profile.objects.get(user=user)
+        except Profile.DoesNotExist:
+            profile = Profile(user=user)
+
+        # Update profile fields
+        profile.name = name
+        profile.age = age
+        if image:
+            profile.image = image
+
+        profile.save()
+
+        messages.success(request, 'Profile updated successfully!')
+        return redirect('chat')  
+
+    profile = Profile.objects.filter(user=request.user).first()
+    return redirect('chat')

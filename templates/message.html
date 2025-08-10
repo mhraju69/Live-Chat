@@ -1,0 +1,21 @@
+
+<div class="message-container">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+<script>
+  window.setTimeout(() => {
+    document.querySelectorAll('.alert').forEach(alert => {
+      // Bootstrap 5 requires calling the alert dispose method to close properly
+      const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
+      bsAlert.close();
+    });
+  }, 3000); // hide after 4 seconds
+</script>
+
