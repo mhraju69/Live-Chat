@@ -7,6 +7,8 @@ from django.contrib.auth.models import User
 
 # Create your views here.
 def user_login(request):
+    if request.user.is_authenticated:
+        return redirect('chat')
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
@@ -15,7 +17,7 @@ def user_login(request):
         
         if user is not None:
             login(request, user)
-            return redirect("/chat/")  # লগইন সফল হলে চ্যাট পেজে নিয়ে যাবে
+            return redirect("chat")  # লগইন সফল হলে চ্যাট পেজে নিয়ে যাবে
         else:
             messages.error(request, "Invalid username or password")
     

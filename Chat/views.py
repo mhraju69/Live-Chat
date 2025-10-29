@@ -3,15 +3,15 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.templatetags.static import static
 from .models import *
+from django.contrib import messages
 
 @login_required
 def ChatView(request, room_id=None):
 
     user = request.user
     profile = getattr(user, 'profile', None)
-    if not profile:
-        return redirect('profile_setup')
-
+        
+    
     rooms = ChatRoom.objects.filter(members=profile).prefetch_related('members__user')
 
 
@@ -85,19 +85,21 @@ def ChatView(request, room_id=None):
 @login_required
 def SearchView(request):
     user = request.user
-    profile = request.user.profile
+    userProfile = request.user.profile
 
     if request.method == "POST":
         query = request.POST.get("name", "").strip()
-
+        print('query==',query)
+        if query == '':
+            return redirect('chat')
         # ১. বর্তমান ইউজারের সব চ্যাট রুম খুঁজে বের করুন
-        existing_rooms = ChatRoom.objects.filter(members=profile).prefetch_related('members__user')
+        existing_rooms = ChatRoom.objects.filter(members=userProfile).prefetch_related('members__user')
         
         # ২. সার্চ কুয়েরি অনুযায়ী সকল প্রোফাইল খুঁজুন (নাম বা ইউজারনেমে)
         all_matching_profiles = Profile.objects.filter(
             Q(name__icontains=query) | 
             Q(user__username__icontains=query)
-        ).exclude(id=profile.id)  # নিজের প্রোফাইল বাদ দিন
+        ).exclude(id=userProfile.id)  # নিজের প্রোফাইল বাদ দিন
 
         chat_list_data = []
         
@@ -128,19 +130,19 @@ def SearchView(request):
                     "picture": picture_url_for(profile),
                     "has_room": False  # ফ্রন্টএন্ডকে জানাবে রুম নেই
                 })
-        print('chat_list_data,',chat_list_data)
+        # print('chat_list_data,',chat_list_data)
         context = {
             "query": query,
             "chats": chat_list_data,
             "nochat": True,
-            "user_profile": profile,
+            "user_profile": userProfile,
             "search_mode": True,
 
         }
         # print(context)
         return render(request, "chat.html", context)
         
-    return redirect('/chat/')
+    return redirect('chat')
 
 def create_chat_room(request, user_id):
     # ৬. নতুন চ্যাট রুম ক্রিয়েট করার ভিউ
@@ -190,7 +192,12 @@ def picture_url_for(p):
             print(f'Exception while accessing image url: {e}')
         return default_avatar
 
-from django.contrib import messages
+
+def call_room(request, room_id):
+    return render(request, 'call.html', {
+        'room_id': room_id,
+    })
+
 @login_required
 def Update_Profile(request):
     if request.method == 'POST':
@@ -217,3 +224,6 @@ def Update_Profile(request):
 
     profile = Profile.objects.filter(user=request.user).first()
     return redirect('chat')
+
+
+

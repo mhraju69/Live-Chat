@@ -19,10 +19,13 @@
                 <div class="chat-header-name">{{ current_chat.name }}</div>
                 <div class="chat-header-status">Active now</div>
             </div>
-            <div class="chat-header-actions">
-                <svg width="24" height="24"><use xlink:href="#call-icon"></use></svg>
-                <svg width="24" height="24"><use xlink:href="#video-icon"></use></svg>
-                <svg width="24" height="24"><use xlink:href="#info-icon"></use></svg>
+            <div class="chat-header-actions" style="display: flex; gap: 30px; padding-right: 30px;">
+                <a href="{% url 'audio_call' room_id %}"><i class="fa-solid fa-phone-volume" style="font-size: 25px;"></i></a>
+                <a href="#"><i class="fa-solid fa-video" style="font-size: 25px;"></i></a>
+                <a href="#"><i class="fa-solid fa-circle-info" style="font-size: 25px;"></i></a>
+                {% comment %} <span type="button" id="sound-toggle"><i class="fa-solid fa-bell" style="font-size: 25px;"></i></span> {% endcomment %}
+                {% comment %} <span type='button' id="sound-toggle" style="height: 25px;width: 25px;margin-top: 10px; margin-left: -15px;"></span> {% endcomment %}
+                
             </div>
         </div>
 
@@ -48,7 +51,7 @@
                 <svg width="24" height="24" class="input-actions"><use xlink:href="#gif-icon"></use></svg>
             </div>
             <button class="send-button" id="send-button">
-                <i class="fa-solid fa-paper-plane" style=font-size:40px;></i>
+                <i class="fa-solid fa-paper-plane" style=font-size:27px;></i>
                 {#  <svg width="24" height="24"><use xlink:href="#send-icon"></use></svg>  #}
             </button>
         </div>

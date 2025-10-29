@@ -15,7 +15,7 @@
 
 <body>
 <div>
-        {% include "chat_list.html" %}
+    {% include "chat_list.html" %}
 </div>
     {% include "chat_container.html" %}
     {% include 'profile.html' %}
@@ -29,27 +29,46 @@
     chatSocket.onopen = () => console.log("WebSocket connected");
 
     chatSocket.onmessage = function(e) {
-        const data = JSON.parse(e.data);
-        console.log("Got message:", data.message);
+    const data = JSON.parse(e.data);
+    console.log("Got message:", data);
 
-        // যদি সার্ভার থেকে নিজের পাঠানো মেসেজ ফিরে আসে, ডুপ্লিকেট এড়াতে কিছু না করবো
-        if(data.message === lastSentMessage) {
-            return;
+    // নিজের পাঠানো মেসেজ ডুপ্লিকেট এড়াতে
+    if(data.message === lastSentMessage) {
+        return;
+    }
+
+    const messagesContainer = document.getElementById('messages-container');
+
+    // চেক করো মেসেজ টাইপ কি নোটিফিকেশন
+    if(data.type === 'notification' || data.type === 'send_notification') {
+        // নোটিফিকেশন দেখানো
+        alert(`New message from ${data.sender}: ${data.message}`);
+
+        if (Notification.permission === "granted") {
+            new Notification(`Message from ${data.sender}`, {
+                body: data.message,
+                // sound বা অন্যান্য অপশন
+            });
         }
 
-        // অন্যদের পাঠানো মেসেজ UI তে যোগ (বাম পাশে)
-        const messagesContainer = document.getElementById('messages-container');
-        const messageDiv = document.createElement('div');
-        messageDiv.className = 'message received';
-        messageDiv.innerHTML = `
-            ${data.message} 
-            <div class="message-time">${new Date().toLocaleTimeString()}</div>
-        `;
-        messagesContainer.appendChild(messageDiv);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            updateLastMessageInList(data.message, roomId);
+        // নোটিফিকেশন হলে UI তে আলাদা কিছু যোগ করতে পারো এখানে
+        return;  // নোটিফিকেশন হলে নিচের মেসেজ যুক্ত করার অংশ এড়িয়ে যাও
+    }
 
-    };
+    // অন্যদের পাঠানো সাধারণ চ্যাট মেসেজ UI তে যোগ করা
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message received';
+    messageDiv.innerHTML = `
+        ${data.message} 
+        <div class="message-time">${new Date().toLocaleTimeString()}</div>
+    `;
+    messagesContainer.appendChild(messageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    updateLastMessageInList(data.message, roomId);
+};
+
+
 
     function updateLastMessageInList(message, roomId) {
         const chatItem = document.querySelector(`.chat-item[data-chat-id="${roomId}"]`);
@@ -107,7 +126,13 @@
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
     });
-</script>
+</script> 
+
+{% comment %} 
+<script>
+    const roomId = "{{ room_id }}";
+</script> {% endcomment %}
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.min.js" integrity="sha384-7qAoOXltbVP82dhxHAUje59V5r2YsVfBafyUDxEdApLPmcdhBPg1DKg1ERo0BZlK" crossorigin="anonymous"></script></body>

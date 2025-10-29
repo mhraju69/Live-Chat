@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "channels",
     "daphne",  
     'django.contrib.admin',
     'django.contrib.auth',
@@ -41,8 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'User',
     'Chat',
-
-    "channels",
+    
 ]
 
 MIDDLEWARE = [
@@ -157,6 +157,6 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
-LOGIN_REDIRECT_URL = '/chat/'
-LOGOUT_REDIRECT_URL = '/login/'
+LOGIN_REDIRECT_URL = 'chat'
+LOGOUT_REDIRECT_URL = 'login'
 LOGIN_URL = 'login' 

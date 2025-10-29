@@ -22,17 +22,18 @@ from django.conf.urls.static import static as static_urls
 from Chat.views import *
 
 
-
+    
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',user_login, name='login'),
+    path('login/',user_login, name='login'),
     path('logout/', logout_view, name='logout'),
     path("signup/", signup, name="signup"),
-    path("chat/", ChatView, name="chat"),
+    path("", ChatView, name="chat"),
     path("chat/<int:room_id>/", ChatView, name="chat-room"),
     path('chat/create-room/<int:user_id>/', create_chat_room, name='create-chat-room'),
     path("chat/search/", SearchView, name="search"),
     path('update-profile/', Update_Profile, name='profile_update'),
+    path("chat/<int:room_id>/call/", call_room, name="audio_call"),
 
 
 ]

@@ -12,6 +12,7 @@ class LoginRequiredMiddleware:
             reverse('admin:index'),
             '/static/',
             '/media/',
+            '/signup/'
         ]
 
         if not request.user.is_authenticated:
