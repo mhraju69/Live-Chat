@@ -31,43 +31,46 @@
             {% endif %}
                 
             <!-- All Chats Tab Content -->
-            <div class="tab-content active" id="all-tab">
-                {% for chat in chats %}
-                {% if search_mode %}
-                <a href="{% url 'create-chat-room' chat.id %}" style="text-decoration:none; color:inherit;">
-                {% else %}
-                    <a href="{% url 'chat-room' chat.id %}" style="text-decoration:none; color:inherit;">
-                        {% endif %}
-                        <div class="chat-item {% if chat.id == current_chat.id %}active{% endif %}" data-chat-id="{{ chat.id }}">
-                            <img class="chat-avatar" src="{{ chat.picture }}" alt="{{ chat.name }}">
-                            <div class="chat-info">
-                                <div class="chat-header">
-                                    <div class="chat-name">{{ chat.name }}</div>
-                                    <div class="chat-time">{{ chat.time }}</div>
-                                </div>
-                                <div class="chat-preview">
-                                    <div class="chat-message">{{ chat.last_message }}</div>
-                                    {% if chat.unread > 0 %}
-                                    <div class="chat-unread">{{ chat.unread }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            {% if not chat.has_room and search_mode%}
-                            <div class="create-chat-container">
-                            <img class="plus-icon" src="{% static 'images/plus.png' %}" alt="">
-                            {% comment %} <p class="create">Create new chat</p> {% endcomment %}
-                        </div>
+                <div class="tab-content active" id="all-tab">
+                    {% for chat in chats %}
+                        {% if search_mode %}
+                            {% if not chat.has_room %}
+                                <a href="{% url 'create-chat-room' chat.id %}" style="text-decoration:none; color:inherit;">
+                            {% else %}
+                                <a href="{% url 'chat-room' chat.id %}" style="text-decoration:none; color:inherit;">
                             {% endif %}
-                        </div>
+                        {% else %}
+                            <a href="{% url 'chat-room' chat.id %}" style="text-decoration:none; color:inherit;">
+                        {% endif %}
 
+                            <div class="chat-item {% if chat.id == current_chat.id %}active{% endif %}" data-chat-id="{{ chat.id }}">
+                                <img class="chat-avatar" src="{{ chat.picture }}" alt="{{ chat.name }}">
+                                <div class="chat-info">
+                                    <div class="chat-header">
+                                        <div class="chat-name">{{ chat.name }}</div>
+                                        <div class="chat-time">{{ chat.time }}</div>
+                                    </div>
+                                    <div class="chat-preview">
+                                        <div class="chat-message">{{ chat.last_message }}</div>
+                                        {% if chat.unread > 0 %}
+                                            <div class="chat-unread">{{ chat.unread }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
 
-                        <!-- From Uiverse.io by vinodjangid07 -->
-                         
-                    </a>
-                {% empty %}
-                    <h4 style="padding:15px;">No chats found.</h4>
-                {% endfor %}
-            </div>
+                                {% if not chat.has_room and search_mode %}
+                                    <div class="create-chat-container">
+                                        <img class="plus-icon" src="{% static 'images/plus.png' %}" alt="">
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                        </a>
+                    {% empty %}
+                        <h4 style="padding:15px;">No chats found.</h4>
+                    {% endfor %}
+                </div>
+
            
         </div>
 
