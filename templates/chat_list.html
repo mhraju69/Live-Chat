@@ -18,43 +18,6 @@
         </div>
     </div>
 
-    {% comment %} <div class="sidebar-tabs">
-        <div class="tab active">All</div>
-        <div class="tab">Unread</div>
-        <div class="tab">Groups</div>
-        <div class="tab">New Chat</div>
-    </div>
-
-    <div class="chat-list" id="chat-list">
-        
-        {% if query %}
-            <h4 style="padding:15px;">Results for: {{query}}</h4>
-        {% endif %}
-            
-        {% for chat in chats %}
-            <a href="{% url 'chat-room' chat.id %}" style="text-decoration:none; color:inherit;">
-                <div class="chat-item {% if chat.id == current_chat.id %}active{% endif %}" data-chat-id="{{ chat.id }}">
-                    <img class="chat-avatar" src="{{ chat.picture }}" alt="{{ chat.name }}">
-                    <div class="chat-info">
-                        <div class="chat-header">
-                            <div class="chat-name">{{ chat.name }}</div>
-                            <div class="chat-time">{{ chat.time }}</div>
-                        </div>
-                        <div class="chat-preview">
-                            <div class="chat-message">{{ chat.last_message }}</div>
-                            {% if chat.unread > 0 %}
-                            <div class="chat-unread">{{ chat.unread }}</div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </a>
-        {% empty %}
-            <p>No chats found.</p>
-        {% endfor %}
-    </div> {% endcomment %}
-
-
     <div class="sidebar-tabs">
     <div class="tab active" data-tab="all">All</div>
     <div class="tab" data-tab="unread">Unread</div>

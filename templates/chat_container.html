@@ -326,68 +326,24 @@
     </style>
 
 <script>
+// Video Call Modal Logic
 document.addEventListener('DOMContentLoaded', function() {
     const videoCallBtn = document.getElementById('video-call-btn');
     const videoModal = document.getElementById('videoCallModal');
 
-    // DOM Elements inside modal
-    const startCallBtn = document.getElementById('startCallBtn');
-    const muteBtn = document.getElementById('muteBtn');
-    const videoBtn = document.getElementById('videoBtn');
-    const endCallBtn = document.getElementById('endCallBtn');
-    const minimizeBtn = document.getElementById('minimizeBtn');
-    const callStatus = document.getElementById('callStatus');
-    const connectionStatus = document.getElementById('connectionStatus');
-    const notification = document.getElementById('notification');
-    const notificationText = document.getElementById('notificationText');
-    const localVideo = document.getElementById('localVideo');
-    const remoteVideo = document.getElementById('remoteVideo');
+    // Open video call modal
+    videoCallBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const roomName = this.getAttribute('data-room-name');
+        openVideoCallModal(roomName);
+    });
 
-    let pc;
-    let localStream;
-    let isMuted = false;
-    let isVideoOff = false;
-
-    function showNotification(message) {
-        notificationText.textContent = message;
-        notification.classList.add('show');
-        setTimeout(() => notification.classList.remove('show'), 3000);
-    }
-
-    function toggleAudio() {
-        if (!localStream) return;
-        const audioTrack = localStream.getAudioTracks()[0];
-        audioTrack.enabled = !audioTrack.enabled;
-        isMuted = !audioTrack.enabled;
-        muteBtn.innerHTML = isMuted ? '<i class="fas fa-microphone-slash"></i>' : '<i class="fas fa-microphone"></i>';
-        showNotification(isMuted ? 'Microphone muted' : 'Microphone unmuted');
-    }
-
-    function toggleVideo() {
-        if (!localStream) return;
-        const videoTrack = localStream.getVideoTracks()[0];
-        videoTrack.enabled = !videoTrack.enabled;
-        isVideoOff = !videoTrack.enabled;
-        videoBtn.innerHTML = isVideoOff ? '<i class="fas fa-video"></i>' : '<i class="fas fa-video-slash"></i>';
-        showNotification(isVideoOff ? 'Video turned off' : 'Video turned on');
-    }
-
-    function endCall() {
-        if (pc) pc.close();
-        if (localStream) localStream.getTracks().forEach(track => track.stop());
-        pc = null;
-        localStream = null;
-        callStatus.textContent = 'Call Ended';
-        connectionStatus.textContent = 'Disconnected';
-        startCallBtn.disabled = false;
-        startCallBtn.innerHTML = '<i class="fas fa-video"></i>';
-        remoteVideo.srcObject = null;
-        showNotification('Call ended');
-        closeVideoCallModal();
-    }
-
-    function minimizeVideoCallModal() {
-        videoModal.style.display = 'none';
+    function openVideoCallModal(roomName) {
+        videoModal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        
+        // Initialize the video call with the room name
+        initializeVideoCall(roomName);
     }
 
     function closeVideoCallModal() {
@@ -395,67 +351,130 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.style.overflow = '';
     }
 
-    videoCallBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        const room_id = this.getAttribute('data-room-name');
-        openVideoCallModal(room_id);
-    });
-
-    function openVideoCallModal(room_id) {
-        videoModal.style.display = 'block';
-        document.body.style.overflow = 'hidden';
-        initializeVideoCall(room_id);
+    function minimizeVideoCallModal() {
+        videoModal.style.display = 'none';
+        // Optional: show a small floating video window here
     }
 
-    async function initializeVideoCall(room_id) {
-        try {
-            // Get local media
-            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            localVideo.srcObject = localStream;
-            connectionStatus.textContent = 'Connected';
-            showNotification('Camera and microphone ready');
-        } catch (err) {
-            console.error(err);
-            showNotification('Camera or microphone permission denied!');
-            connectionStatus.textContent = 'Error';
-            return;
+    // Main WebRTC & Modal Function
+    function initializeVideoCall(room_id) {
+        const ws = new WebSocket("ws://" + location.host + "/ws/video/" + room_id + "/");
+
+        let pc;
+        let localStream;
+        let isMuted = false;
+        let isVideoOff = false;
+        let callActive = false;
+
+        // DOM Elements
+        const startCallBtn = document.getElementById('startCallBtn');
+        const muteBtn = document.getElementById('muteBtn');
+        const videoBtn = document.getElementById('videoBtn');
+        const endCallBtn = document.getElementById('endCallBtn');
+        const minimizeBtn = document.getElementById('minimizeBtn');
+        const callStatus = document.getElementById('callStatus');
+        const connectionStatus = document.getElementById('connectionStatus');
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notificationText');
+
+        // Show notification
+        function showNotification(message) {
+            notificationText.textContent = message;
+            notification.classList.add('show');
+            setTimeout(() => notification.classList.remove('show'), 3000);
         }
 
-        pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
-
-        // Add local tracks
-        localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-
-        // Remote stream
-        pc.ontrack = event => {
-            remoteVideo.srcObject = event.streams[0];
-            showNotification('Remote participant joined');
-        };
-
-        pc.onicecandidate = event => {
-            if (event.candidate) {
-                ws.send(JSON.stringify({ action: 'candidate', payload: event.candidate }));
+        // Toggle audio
+        function toggleAudio() {
+            if (!localStream) return;
+            const audioTracks = localStream.getAudioTracks();
+            if (audioTracks.length > 0) {
+                audioTracks[0].enabled = !audioTracks[0].enabled;
+                isMuted = !audioTracks[0].enabled;
+                muteBtn.innerHTML = isMuted ? '<i class="fas fa-microphone-slash"></i>' : '<i class="fas fa-microphone"></i>';
+                showNotification(isMuted ? 'Microphone muted' : 'Microphone unmuted');
             }
-        };
+        }
 
-        pc.onconnectionstatechange = () => {
-            connectionStatus.textContent = pc.connectionState;
-            if (pc.connectionState === 'connected') {
-                callStatus.textContent = 'In Call';
-                showNotification('Call connected successfully');
-            } else if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
-                callStatus.textContent = 'Connection Lost';
-                showNotification('Connection lost');
+        // Toggle video
+        function toggleVideo() {
+            if (!localStream) return;
+            const videoTracks = localStream.getVideoTracks();
+            if (videoTracks.length > 0) {
+                videoTracks[0].enabled = !videoTracks[0].enabled;
+                isVideoOff = !videoTracks[0].enabled;
+                videoBtn.innerHTML = isVideoOff ? '<i class="fas fa-video-slash"></i>' : '<i class="fas fa-video"></i>';
+                showNotification(isVideoOff ? 'Video turned off' : 'Video turned on');
             }
-        };
+        }
 
-        // WebSocket setup
-        const ws = new WebSocket(`ws://${location.host}/ws/video/${room_id}/`);
+        // End call
+        function endCall(opponent=false) {
+            if (pc) {
+                pc.close();
+                pc = null;
+            }
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+            callActive = false;
+            callStatus.textContent = opponent ? 'Call Ended by Opponent' : 'Call Ended';
+            connectionStatus.textContent = 'Disconnected';
+            startCallBtn.disabled = false;
+            startCallBtn.innerHTML = '<i class="fas fa-video"></i>';
+            document.getElementById('remoteVideo').srcObject = null;
+            showNotification(opponent ? 'Opponent ended the call' : 'Call ended');
+            setTimeout(() => closeVideoCallModal(), 1000);
+        }
 
+        // Initialize WebRTC
+        async function init() {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                document.getElementById('localVideo').srcObject = localStream;
+                connectionStatus.textContent = 'Connected';
+                showNotification('Camera and microphone ready');
+            } catch (err) {
+                console.error("Camera/Mic error:", err);
+                showNotification('Camera or microphone permission denied!');
+                connectionStatus.textContent = 'Error';
+                return;
+            }
+
+            pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+
+            localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+
+            pc.ontrack = event => {
+                const remoteVideo = document.getElementById('remoteVideo');
+                if (!remoteVideo.srcObject) {
+                    remoteVideo.srcObject = event.streams[0];
+                    showNotification('Remote participant joined');
+                }
+            };
+
+            pc.onicecandidate = event => {
+                if (event.candidate) {
+                    ws.send(JSON.stringify({ action: 'candidate', payload: event.candidate }));
+                }
+            };
+
+            pc.onconnectionstatechange = () => {
+                connectionStatus.textContent = pc.connectionState;
+                if (pc.connectionState === 'connected') {
+                    callStatus.textContent = 'In Call';
+                    showNotification('Call connected successfully');
+                } else if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
+                    callStatus.textContent = 'Connection Lost';
+                    showNotification('Connection lost');
+                }
+            };
+        }
+
+        // WebSocket message handler
         ws.onmessage = async event => {
-            const msg = JSON.parse(event.data);
-            const { action, payload } = msg;
-
+            const { action, payload } = JSON.parse(event.data);
             if (!pc) return;
 
             if (action === 'offer') {
@@ -470,45 +489,52 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (action === 'peer-joined') {
                 showNotification('New participant joined the room');
             } else if (action === 'peer-left') {
-                remoteVideo.srcObject = null;
-                callStatus.textContent = 'Waiting';
-                showNotification('Participant left the room');
+                // Opponent ended the call
+                endCall(true);
             }
         };
 
-        // Start call automatically
-        startCallBtn.addEventListener('click', async () => {
-            if (!pc) return showNotification('Connection not ready!');
+        // Start call button
+        startCallBtn.onclick = async () => {
+            if (!pc) {
+                showNotification('Connection not ready!');
+                return;
+            }
             const offer = await pc.createOffer();
             await pc.setLocalDescription(offer);
             ws.send(JSON.stringify({ action: 'offer', payload: pc.localDescription }));
+            callActive = true;
             callStatus.textContent = 'Calling...';
             startCallBtn.disabled = true;
             startCallBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             showNotification('Call initiated');
-        });
+        };
 
         // Control buttons
         muteBtn.addEventListener('click', toggleAudio);
         videoBtn.addEventListener('click', toggleVideo);
-        endCallBtn.addEventListener('click', endCall);
+        endCallBtn.addEventListener('click', () => endCall(false));
         minimizeBtn.addEventListener('click', minimizeVideoCallModal);
 
-        // Auto start call after modal opens
-        setTimeout(() => startCallBtn.click(), 500);
-
-        // Close modal on click outside
+        // Close modal on background click
         videoModal.addEventListener('click', e => {
-            if (e.target === videoModal) endCall();
+            if (e.target === videoModal) endCall(false);
         });
 
-        // Cleanup on unload
+        // Initialize
+        init();
+
+        // Auto-start call after short delay
+        setTimeout(() => startCallBtn.click(), 1000);
+
+        // Cleanup on page unload
         window.addEventListener('beforeunload', () => {
             if (pc) pc.close();
             if (localStream) localStream.getTracks().forEach(track => track.stop());
         });
     }
 });
+
 </script>
 
 {% endblock chatcontainer %}
