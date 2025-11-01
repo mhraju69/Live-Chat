@@ -33,7 +33,7 @@ urlpatterns = [
     path('chat/create-room/<int:user_id>/', create_chat_room, name='create-chat-room'),
     path("chat/search/", SearchView, name="search"),
     path('update-profile/', Update_Profile, name='profile_update'),
-    path("chat/<int:room_id>/call/", call_room, name="audio_call"),
+    path("video/<int:room_id>/", call_room, name="audio_call"),
 
 
 ]

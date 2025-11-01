@@ -1,388 +1,555 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>১v১ কল</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Call - {{ room_name }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .call-container {
-            max-width: 600px;
-            margin: 0 auto;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header {
             text-align: center;
+            margin-bottom: 20px;
+            width: 100%;
         }
-        button {
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header h2 {
+            font-size: 1.8rem;
+            font-weight: 400;
+            background: rgba(255, 255, 255, 0.1);
             padding: 10px 20px;
-            margin: 10px;
-            font-size: 16px;
-            cursor: pointer;
+            border-radius: 50px;
+            display: inline-block;
+            backdrop-filter: blur(10px);
         }
-        .status {
-            margin: 20px 0;
+
+        .video-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .video-wrapper video {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .video-label {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .video-label i {
+            color: #ff4d4d;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4a00e0, #8e2de2);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a10f0, #9e3df2);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #ff517c, #ff5b3b);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #00b09b, #96c93d);
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #10c0ab, #a6d94d);
+        }
+
+        .back-link {
+            margin-top: 20px;
+            text-decoration: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 15px;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-value {
             font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .status-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .participants {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .participant {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateX(150%);
+            transition: transform 0.5s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        @media (max-width: 768px) {
+            .video-wrapper {
+                max-width: 100%;
+            }
+            
+            .video-wrapper video {
+                height: 250px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .header h2 {
+                font-size: 1.4rem;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="call-container">
-        <h2>১v১ কল - রুম: <span id="roomId"></span></h2>
-        
-        <div class="status" id="callStatus">প্রস্তুত</div>
-        
-        <div id="callControls">
-            <button id="startCall">কল শুরু করো</button>
-            <button id="acceptCall" style="display:none;">কল গ্রহণ করো</button>
-            <button id="hangupCall" style="display:none;">কল শেষ করো</button>
+    <div class="container">
+        <div class="header">
+            <h1>Premium Video Call</h1>
+            <h2>Room: {{ room_name }}</h2>
         </div>
         
-        <!-- অডিও এলিমেন্ট -->
-        <audio id="remoteAudio" autoplay></audio>
+        <div class="video-container">
+            <div class="video-wrapper">
+                <video id="localVideo" autoplay muted playsinline></video>
+                <div class="video-label">
+                    <i class="fas fa-user"></i> You
+                </div>
+            </div>
+            
+            <div class="video-wrapper">
+                <video id="remoteVideo" autoplay playsinline></video>
+                <div class="video-label">
+                    <i class="fas fa-user-friends"></i> Remote Participant
+                </div>
+            </div>
+        </div>
         
-        <!-- স্থানীয় অডিও টেস্ট (ঐচ্ছিক) -->
-        <audio id="localAudio" muted autoplay></audio>
+        <div class="controls">
+            <button id="startCallBtn" class="btn btn-primary">
+                <i class="fas fa-video"></i> Start Call
+            </button>
+            <button id="muteBtn" class="btn">
+                <i class="fas fa-microphone"></i> Mute
+            </button>
+            <button id="videoBtn" class="btn">
+                <i class="fas fa-video-slash"></i> Video Off
+            </button>
+            <button id="endCallBtn" class="btn btn-danger">
+                <i class="fas fa-phone-slash"></i> End Call
+            </button>
+        </div>
+        
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-value" id="callStatus">Ready</div>
+                <div class="status-label">Status</div>
+            </div>
+            <div class="status-item">
+                <div class="status-value" id="connectionStatus">Connecting...</div>
+                <div class="status-label">Connection</div>
+            </div>
+            <div class="status-item">
+                <div class="status-value">2</div>
+                <div class="status-label">Participants</div>
+            </div>
+        </div>
+        
+         <a href="{% url 'chat-room' room_id  %}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a> 
+    </div>
+    
+    <div class="notification" id="notification">
+        <i class="fas fa-bell"></i>
+        <span id="notificationText">Notification message</span>
     </div>
 
     <script>
-        // রুম আইডি সেট করুন
-        const roomId = {{room_id}};
-        document.getElementById('roomId').innerText = roomId;
+        const roomName = "{{ room_id }}";
+        const ws = new WebSocket("ws://" + location.host + "/ws/video/" + roomName + "/");
+        //const ws = new WebSocket("wss://ape-in-eft.ngrok-free.app/ws/room/" + roomName + "/");
 
-        // ওয়েবসকেট সংযোগ
-        const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
-        const socket = new WebSocket(`${wsScheme}://${window.location.host}/ws/call/${roomId}/`);
-
-        // ভেরিয়েবল
-        let localConnection;
+        let pc;
         let localStream;
-        let isCaller = false;
-        let hasRemoteStream = false;
+        let isMuted = false;
+        let isVideoOff = false;
+        let callActive = false;
 
-        // UI আপডেট ফাংশন
-        function updateUI() {
-            const startBtn = document.getElementById('startCall');
-            const acceptBtn = document.getElementById('acceptCall');
-            const hangupBtn = document.getElementById('hangupCall');
-            const status = document.getElementById('callStatus');
+        // DOM Elements
+        const startCallBtn = document.getElementById('startCallBtn');
+        const muteBtn = document.getElementById('muteBtn');
+        const videoBtn = document.getElementById('videoBtn');
+        const endCallBtn = document.getElementById('endCallBtn');
+        const callStatus = document.getElementById('callStatus');
+        const connectionStatus = document.getElementById('connectionStatus');
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notificationText');
 
-            if (localConnection) {
-                startBtn.style.display = 'none';
-                hangupBtn.style.display = 'inline-block';
-                status.textContent = hasRemoteStream ? 'কল সংযুক্ত হয়েছে' : 'কল সংযোগ হচ্ছে...';
-            } else {
-                hangupBtn.style.display = 'none';
-                status.textContent = 'প্রস্তুত';
-            }
+        // Show notification
+        function showNotification(message) {
+            notificationText.textContent = message;
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
         }
 
-        // ওয়েবসকেট ইভেন্ট হ্যান্ডলার
-        socket.onopen = () => {
-            console.log("WebSocket সংযুক্ত হয়েছে");
-            updateUI();
-        };
-
-        socket.onmessage = async (e) => {
-            const data = JSON.parse(e.data);
-            console.log("প收到的 메시지:", data);
-
-            if (data.type === 'offer') {
-                // কল গ্রহণের অপশন দেখান
-                document.getElementById('acceptCall').style.display = 'inline-block';
-                document.getElementById('callStatus').textContent = 'আপনাকে কল করা হচ্ছে...';
-                await handleOffer(data);
-            } else if (data.type === 'answer') {
-                await handleAnswer(data);
-            } else if (data.type === 'candidate') {
-                await handleCandidate(data);
-            } else if (data.type === 'hangup') {
-                endCall();
-                document.getElementById('callStatus').textContent = 'কল শেষ হয়েছে';
-            }
-        };
-
-        // কল শুরু ফাংশন
-        async function startCall() {
-            try {
-                isCaller = true;
-                document.getElementById('callStatus').textContent = 'কল শুরু হচ্ছে...';
+        // Toggle audio
+        function toggleAudio() {
+            if (!localStream) return;
+            
+            const audioTracks = localStream.getAudioTracks();
+            if (audioTracks.length > 0) {
+                audioTracks[0].enabled = !audioTracks[0].enabled;
+                isMuted = !audioTracks[0].enabled;
                 
-                // মিডিয়া স্ট্রীম পাইয়ে নিন
-                localStream = await navigator.mediaDevices.getUserMedia({ 
-                    audio: true, 
-                    video: false // শুধু অডিও কলের জন্য
-                });
+                muteBtn.innerHTML = isMuted ? 
+                    '<i class="fas fa-microphone-slash"></i> Unmute' : 
+                    '<i class="fas fa-microphone"></i> Mute';
                 
-                // স্থানীয় অডিও টেস্ট (ঐচ্ছিক)
-                const localAudio = document.getElementById('localAudio');
-                localAudio.srcObject = localStream;
-
-                // RTCPeerConnection তৈরি করুন
-                localConnection = new RTCPeerConnection({
-                    iceServers: [
-                        { urls: 'stun:stun.l.google.com:19302' },
-                        { urls: 'stun:stun1.l.google.com:19302' }
-                    ]
-                });
-
-                // স্ট্রীম ট্র্যাক যোগ করুন
-                localStream.getTracks().forEach(track => {
-                    localConnection.addTrack(track, localStream);
-                });
-
-                // ICE candidate হ্যান্ডলার
-                localConnection.onicecandidate = e => {
-                    if (e.candidate) {
-                        socket.send(JSON.stringify({ 
-                            type: "candidate", 
-                            candidate: e.candidate 
-                        }));
-                    }
-                };
-
-                // রিমোট স্ট্রীম হ্যান্ডলার
-                localConnection.ontrack = e => {
-                    if (!hasRemoteStream) {
-                        hasRemoteStream = true;
-                        const remoteAudio = document.getElementById('remoteAudio');
-                        remoteAudio.srcObject = e.streams[0];
-                        updateUI();
-                    }
-                };
-
-                // অফার তৈরি করুন
-                const offer = await localConnection.createOffer();
-                await localConnection.setLocalDescription(offer);
-
-                // অফার পাঠান
-                socket.send(JSON.stringify({ 
-                    type: "offer", 
-                    sdp: offer 
-                }));
-
-                updateUI();
-            } catch (error) {
-                console.error("কল শুরু করতে ব্যর্থ:", error);
-                document.getElementById('callStatus').textContent = 'ত্রুটি: ' + error.message;
+                showNotification(isMuted ? 'Microphone muted' : 'Microphone unmuted');
             }
         }
 
-        // কল গ্রহণ ফাংশন
-        async function acceptCall() {
-            try {
-                document.getElementById('acceptCall').style.display = 'none';
-                document.getElementById('callStatus').textContent = 'কল সংযুক্ত হচ্ছে...';
+        // Toggle video
+        function toggleVideo() {
+            if (!localStream) return;
+            
+            const videoTracks = localStream.getVideoTracks();
+            if (videoTracks.length > 0) {
+                videoTracks[0].enabled = !videoTracks[0].enabled;
+                isVideoOff = !videoTracks[0].enabled;
                 
-                // মিডিয়া স্ট্রীম পাইয়ে নিন
-                localStream = await navigator.mediaDevices.getUserMedia({ 
-                    audio: true, 
-                    video: false 
-                });
+                videoBtn.innerHTML = isVideoOff ? 
+                    '<i class="fas fa-video"></i> Video On' : 
+                    '<i class="fas fa-video-slash"></i> Video Off';
                 
-                // উত্তর তৈরি করুন
-                const answer = await localConnection.createAnswer();
-                await localConnection.setLocalDescription(answer);
-
-                // উত্তর পাঠান
-                socket.send(JSON.stringify({ 
-                    type: "answer", 
-                    sdp: answer 
-                }));
-
-                updateUI();
-            } catch (error) {
-                console.error("কল গ্রহণ করতে ব্যর্থ:", error);
-                document.getElementById('callStatus').textContent = 'ত্রুটি: ' + error.message;
+                showNotification(isVideoOff ? 'Video turned off' : 'Video turned on');
             }
         }
 
-        // অফার হ্যান্ডলার
-        async function handleOffer(data) {
-            try {
-                // মিডিয়া স্ট্রীম পাইয়ে নিন
-                localStream = await navigator.mediaDevices.getUserMedia({ 
-                    audio: true, 
-                    video: false 
-                });
-
-                // RTCPeerConnection তৈরি করুন
-                localConnection = new RTCPeerConnection({
-                    iceServers: [
-                        { urls: 'stun:stun.l.google.com:19302' },
-                        { urls: 'stun:stun1.l.google.com:19302' }
-                    ]
-                });
-
-                // স্ট্রীম ট্র্যাক যোগ করুন
-                localStream.getTracks().forEach(track => {
-                    localConnection.addTrack(track, localStream);
-                });
-
-                // ICE candidate হ্যান্ডলার
-                localConnection.onicecandidate = e => {
-                    if (e.candidate) {
-                        socket.send(JSON.stringify({ 
-                            type: "candidate", 
-                            candidate: e.candidate 
-                        }));
-                    }
-                };
-
-                // রিমোট স্ট্রীম হ্যান্ডলার
-                localConnection.ontrack = e => {
-                    if (!hasRemoteStream) {
-                        hasRemoteStream = true;
-                        const remoteAudio = document.getElementById('remoteAudio');
-                        remoteAudio.srcObject = e.streams[0];
-                        updateUI();
-                    }
-                };
-
-                // রিমোট ডেসক্রিপশন সেট করুন
-                await localConnection.setRemoteDescription(new RTCSessionDescription(data.sdp));
-            } catch (error) {
-                console.error("অফার প্রক্রিয়া করতে ব্যর্থ:", error);
-                document.getElementById('callStatus').textContent = 'ত্রুটি: ' + error.message;
-            }
-        }
-
-        // উত্তর হ্যান্ডলার
-        async function handleAnswer(data) {
-            try {
-                await localConnection.setRemoteDescription(new RTCSessionDescription(data.sdp));
-                hasRemoteStream = true;
-                updateUI();
-            } catch (error) {
-                console.error("উত্তর প্রক্রিয়া করতে ব্যর্থ:", error);
-                document.getElementById('callStatus').textContent = 'ত্রুটি: ' + error.message;
-            }
-        }
-
-        // ICE candidate হ্যান্ডলার
-        async function handleCandidate(data) {
-            try {
-                if (localConnection && data.candidate) {
-                    await localConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
-                }
-            } catch (error) {
-                console.error("ICE candidate প্রক্রিয়া করতে ব্যর্থ:", error);
-            }
-        }
-
-        // কল শেষ ফাংশন
+        // End call
         function endCall() {
-            if (localConnection) {
-                localConnection.close();
-                localConnection = null;
+            if (pc) {
+                pc.close();
+                pc = null;
             }
+            
             if (localStream) {
                 localStream.getTracks().forEach(track => track.stop());
                 localStream = null;
             }
             
-            hasRemoteStream = false;
-            isCaller = false;
+            callActive = false;
+            callStatus.textContent = 'Call Ended';
+            connectionStatus.textContent = 'Disconnected';
             
-            // রিমোট অডিও ক্লিয়ার করুন
-            const remoteAudio = document.getElementById('remoteAudio');
-            if (remoteAudio.srcObject) {
-                remoteAudio.srcObject = null;
+            startCallBtn.disabled = false;
+            startCallBtn.innerHTML = '<i class="fas fa-video"></i> Start Call';
+            
+            document.getElementById('remoteVideo').srcObject = null;
+            
+            showNotification('Call ended');
+        }
+
+        // Initialize WebRTC
+        async function init() {
+            try {
+                // Get local camera + mic
+                localStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: true, 
+                    audio: true 
+                });
+                
+                document.getElementById('localVideo').srcObject = localStream;
+                connectionStatus.textContent = 'Connected';
+                showNotification('Camera and microphone ready');
+                
+            } catch (err) {
+                console.error("Camera/Mic error:", err);
+                showNotification('Camera or microphone permission denied!');
+                connectionStatus.textContent = 'Error';
+                return;
+            }
+
+            // Create peer connection
+            pc = new RTCPeerConnection({
+                iceServers: [
+                    { urls: 'stun:stun.l.google.com:19302' }
+                ]
+            });
+
+            // Add local tracks to peer connection
+            localStream.getTracks().forEach(track => {
+                pc.addTrack(track, localStream);
+            });
+
+            // Handle remote stream
+            pc.ontrack = (event) => {
+                const remoteVideo = document.getElementById('remoteVideo');
+                if (!remoteVideo.srcObject) {
+                    remoteVideo.srcObject = event.streams[0];
+                    showNotification('Remote participant joined');
+                }
+            };
+
+            // Handle ICE candidates
+            pc.onicecandidate = (event) => {
+                if (event.candidate) {
+                    ws.send(JSON.stringify({
+                        action: "candidate", 
+                        payload: event.candidate
+                    }));
+                }
+            };
+
+            // Handle connection state changes
+            pc.onconnectionstatechange = () => {
+                connectionStatus.textContent = pc.connectionState;
+                
+                if (pc.connectionState === 'connected') {
+                    callStatus.textContent = 'In Call';
+                    showNotification('Call connected successfully');
+                } else if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
+                    callStatus.textContent = 'Connection Lost';
+                    showNotification('Connection lost');
+                }
+            };
+        }
+
+        // WebSocket message handler
+        ws.onmessage = async (event) => {
+            const msg = JSON.parse(event.data);
+            const action = msg.action;
+            const payload = msg.payload;
+
+            if (!pc) return;
+
+            if (action === "offer") {
+                await pc.setRemoteDescription(payload);
+                const answer = await pc.createAnswer();
+                await pc.setLocalDescription(answer);
+                ws.send(JSON.stringify({
+                    action: "answer", 
+                    payload: pc.localDescription
+                }));
+                callActive = true;
+                callStatus.textContent = 'In Call';
+                
+            } else if (action === "answer") {
+                await pc.setRemoteDescription(payload);
+                callActive = true;
+                callStatus.textContent = 'In Call';
+                
+            } else if (action === "candidate") {
+                await pc.addIceCandidate(payload);
+                
+            } else if (action === "peer-joined") {
+                showNotification('New participant joined the room');
+                
+            } else if (action === "peer-left") {
+                showNotification('Participant left the room');
+                document.getElementById('remoteVideo').srcObject = null;
+                callStatus.textContent = 'Waiting';
+            }
+        };
+
+        // Start call button
+        startCallBtn.onclick = async () => {
+            if (!pc) {
+                showNotification('Connection not ready!');
+                return;
             }
             
-            // হ্যাংআপ মেসেজ পাঠান
-            socket.send(JSON.stringify({ type: "hangup" }));
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            ws.send(JSON.stringify({
+                action: "offer", 
+                payload: pc.localDescription
+            }));
             
-            // UI রিসেট করুন
-            document.getElementById('startCall').style.display = 'inline-block';
-            document.getElementById('acceptCall').style.display = 'none';
-            document.getElementById('hangupCall').style.display = 'none';
-            document.getElementById('callStatus').textContent = 'কল শেষ হয়েছে';
-        }
+            callActive = true;
+            callStatus.textContent = 'Calling...';
+            startCallBtn.disabled = true;
+            startCallBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Calling...';
+            
+            showNotification('Call initiated');
+        };
 
-        // ইভেন্ট লিসেনার
-        document.getElementById('startCall').addEventListener('click', startCall);
-        document.getElementById('acceptCall').addEventListener('click', acceptCall);
-        document.getElementById('hangupCall').addEventListener('click', endCall);
+        // Control button event listeners
+        muteBtn.addEventListener('click', toggleAudio);
+        videoBtn.addEventListener('click', toggleVideo);
+        endCallBtn.addEventListener('click', endCall);
 
-        // পেজ আনলোড হলে কল শেষ করুন
-        window.addEventListener('beforeunload', endCall);
-    </script>
-    <script>
-    // Notification system with auto-removal
-    function showNotification(type, message, subText) {
-        // Create notification element
-        const notification = document.createElement('div');
-        notification.className = 'notification';
-        notification.setAttribute('data-notify-type', type);
-        notification.setAttribute('data-notify-time', new Date().toISOString());
-        
-        notification.innerHTML = `
-            <svg class="wave" viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg">
-                <path
-                    d="M0,256L11.4,240C22.9,224,46,192,69,192C91.4,192,114,224,137,234.7C160,245,183,235,206,213.3C228.6,192,251,160,274,149.3C297.1,139,320,149,343,181.3C365.7,213,389,267,411,282.7C434.3,299,457,277,480,250.7C502.9,224,526,192,549,181.3C571.4,171,594,181,617,208C640,235,663,277,686,256C708.6,235,731,149,754,122.7C777.1,96,800,128,823,165.3C845.7,203,869,245,891,224C914.3,203,937,117,960,112C982.9,107,1006,181,1029,197.3C1051.4,213,1074,171,1097,144C1120,117,1143,107,1166,133.3C1188.6,160,1211,224,1234,218.7C1257.1,213,1280,139,1303,133.3C1325.7,128,1349,192,1371,192C1394.3,192,1417,128,1429,96L1440,64L1440,320L1428.6,320C1417.1,320,1394,320,1371,320C1348.6,320,1326,320,1303,320C1280,320,1257,320,1234,320C1211.4,320,1189,320,1166,320C1142.9,320,1120,320,1097,320C1074.3,320,1051,320,1029,320C1005.7,320,983,320,960,320C937.1,320,914,320,891,320C868.6,320,846,320,823,320C800,320,777,320,754,320C731.4,320,709,320,686,320C662.9,320,640,320,617,320C594.3,320,571,320,549,320C525.7,320,503,320,480,320C457.1,320,434,320,411,320C388.6,320,366,320,343,320C320,320,297,320,274,320C251.4,320,229,320,206,320C182.9,320,160,320,137,320C114.3,320,91,320,69,320C45.7,320,23,320,11,320L0,320Z"
-                    fill-opacity="1"
-                ></path>
-            </svg>
-            <div class="icon-container">
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 512 512"
-                    stroke-width="0"
-                    fill="currentColor"
-                    stroke="currentColor"
-                    class="icon"
-                >
-                    <path
-                        d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-111 111-47-47c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l64 64c9.4 9.4 24.6 9.4 33.9 0L369 209z"
-                    ></path>
-                </svg>
-            </div>
-            <div class="message-text-container">
-                <p class="message-text">${message}</p>
-                <p class="sub-text">${subText}</p>
-            </div>
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 15 15"
-                stroke-width="0"
-                fill="none"
-                stroke="currentColor"
-                class="cross-icon"
-            >
-                <path
-                    fill="currentColor"
-                    d="M11.7816 4.03157C12.0062 3.80702 12.0062 3.44295 11.7816 3.2184C11.5571 2.99385 11.193 2.99385 10.9685 3.2184L7.50005 6.68682L4.03164 3.2184C3.80708 2.99385 3.44301 2.99385 3.21846 3.2184C2.99391 3.44295 2.99391 3.80702 3.21846 4.03157L6.68688 7.49999L3.21846 10.9684C2.99391 11.193 2.99391 11.557 3.21846 11.7816C3.44301 12.0061 3.80708 12.0061 4.03164 11.7816L7.50005 8.31316L10.9685 11.7816C11.193 12.0061 11.5571 12.0061 11.7816 11.7816C12.0062 11.557 12.0062 11.193 11.7816 10.9684L8.31322 7.49999L11.7816 4.03157Z"
-                    clip-rule="evenodd"
-                    fill-rule="evenodd"
-                ></path>
-            </svg>
-        `;
+        // Initialize on page load
+        init();
 
-        // Add to document
-        document.body.appendChild(notification);
-
-        // Auto-remove after 3 seconds
-        setTimeout(() => {
-            notification.remove();
-        }, 3000);
-
-        // Add click handler for close button
-        notification.querySelector('.cross-icon').addEventListener('click', () => {
-            notification.remove();
+        // Handle page unload
+        window.addEventListener('beforeunload', () => {
+            if (pc) {
+                pc.close();
+            }
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
         });
-    }
-
-    // WebSocket integration for chat notifications
-    const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
-    const notificationSocket = new WebSocket(`${wsScheme}://${window.location.host}/ws/notifications/`);
-
-    notificationSocket.onmessage = function(e) {
-        const data = JSON.parse(e.data);
-        if (data.type === 'notification') {
-            showNotification('chat', `New message from ${data.sender}`, data.message);
-        }
-    };
-
-    // Example usage:
-    // showNotification('success', 'Message sent', 'Your message was delivered');
-    // showNotification('error', 'Failed to send', 'Please try again');
-</script>
+    </script>
 </body>
 </html>
