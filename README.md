@@ -72,14 +72,7 @@ LiveChat is a comprehensive communication platform inspired by WhatsApp, offerin
    ```bash
    pip install -r requirements.txt
     ```
-4. Configure environment variables Create a .env file with:
-   
-   ```plaintext
-   TURN_SERVER_URL=your_turn_server
-   TURN_SERVER_USERNAME=your_username
-   TURN_SERVER_CREDENTIAL=your_credential
-    ```
-5. Run migrations
+4. Run migrations
    
    ```bash
    python manage.py migrate
